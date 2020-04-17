@@ -15,6 +15,12 @@ _/    _/  _/_/_/  _/_/_/_/ email: Davide.Galli@unimi.it
 #include "MolDyn_NVE.h"
 
 using namespace std;
+// A bunch of useful functions
+void SaveMeasure(std::vector<double> &, std::vector<double> &, std::vector<double> &, std::vector<double> & );
+void BlockResults(int,vector<double> &, vector<double> &, vector<double> &, vector<double> &);
+double error(vector<double> &,vector<double> &, int);
+std::vector<double> Blocking(int,std::vector<double> &);
+void DataBlocking(vector <double> value, vector <double> & sum_prog, vector <double> &err_prog);
 
 int main(){ 
   Input();             //Inizialization
@@ -29,7 +35,7 @@ int main(){
      SaveMeasure(v_e_tot,v_e_kin,v_e_pot,v_temp);
      if(istep%iprint == 0) cout << "Number of time-steps: " << istep << endl;
      if(istep%10 == 0){
-        Measure();     //Properties measurement
+        //Measure();     //Properties measurement
 //        ConfXYZ(nconf);//Write actual configuration in XYZ format //Commented to avoid "filesystem full"! 
         nconf += 1;
      }
@@ -37,7 +43,7 @@ int main(){
   }
   ConfFinal();         //Write final configuration to restart
   
-  BlockResults(nblocks,v_e_tot,v_e_kin,v_e_pot,v_temp) //Calculate the values with the blocking methods and print it
+  BlockResults(nblocks,v_e_tot,v_e_kin,v_e_pot,v_temp); //Calculate the values with the blocking methods and print it
    
   return 0;
 }
@@ -78,7 +84,8 @@ void Input(void){ //Prepare all stuff for the simulation
 
   cout << "The program integrates Newton equations with the Verlet method " << endl;
   cout << "Time step = " << delta << endl;
-  cout << "Number of steps = " << nstep << endl << endl;
+  cout << "Number of steps = " << nstep << endl;
+  cout << "Number of blocks= " << nblocks <<endl <<endl;
   ReadInput.close();
 
 //Prepare array for measurements
@@ -366,18 +373,18 @@ void BlockResults(int nblocks,vector<double> & tot, vector<double> & kin, vector
   Etot.open("ave_etot.dat");
    
   // Create the vectors with the results
-  double<vector> ave_tot=Blocking(nblocks,tot);
-  double<vector> sum_tot(nblocks,0);
-  double<vector> err_tot(nblocks,0);
-  double<vector> ave_pot=Blocking(nblocks,pot);
-  double<vector> sum_pot(nblocks,0);
-  double<vector> err_pot(nblocks,0);
-  double<vector> ave_kin=Blocking(nblocks,kin);
-  double<vector> sum_kin(nblocks,0);
-  double<vector> err_kin(nblocks,0);
-  double<vector> ave_temp=Blocking(nblocks,temp);
-  double<vector> sum_temp(nblocks,0);
-  double<vector> err_temp(nblocks,0);
+  vector<double> ave_tot=Blocking(nblocks,tot);
+  vector<double> sum_tot(nblocks,0);
+  vector<double> err_tot(nblocks,0);
+  vector<double> ave_pot=Blocking(nblocks,pot);
+  vector<double> sum_pot(nblocks,0);
+  vector<double> err_pot(nblocks,0);
+  vector<double> ave_kin=Blocking(nblocks,kin);
+  vector<double> sum_kin(nblocks,0);
+  vector<double> err_kin(nblocks,0);
+  vector<double> ave_temp=Blocking(nblocks,temp);
+  vector<double> sum_temp(nblocks,0);
+  vector<double> err_temp(nblocks,0);
   
   // And write the results
   DataBlocking(ave_tot,sum_tot,err_tot);
@@ -387,11 +394,12 @@ void BlockResults(int nblocks,vector<double> & tot, vector<double> & kin, vector
 
   //Now write the results on files
   
-    Epot << sum_pot  <<" "<<err_pot<< endl;
-    Ekin << sum_kin  <<" "<<err_kin<< endl;
-    Temp << sum_temp <<" "<<err_temp<< endl;
-    Etot << sum_etot <<" "<<err_tot<< endl;
-
+  for(int i=0;i<nblocks;++i){
+    Epot << sum_pot[i]  <<","<<err_pot[i] << endl;
+    Ekin << sum_kin[i]  <<","<<err_kin[i] << endl;
+    Temp << sum_temp[i] <<","<<err_temp[i] << endl;
+    Etot << sum_tot[i] <<","<<err_tot[i] << endl;
+}
     Epot.close();
     Ekin.close();
     Temp.close();
@@ -438,9 +446,9 @@ double error(vector<double> & av,vector<double> & av2, int n){  // Error functio
     }
 }
 
-vector<double> Blocking(int nblocks,double<vector> & v){
+vector<double> Blocking(int nblocks,vector<double> & v){
  vector<double> b_v;
- int N= v.size()
+ int N= v.size();
  int L= N/nblocks;
  for(int i=0;i<nblocks;i++){
      double sum=0;
@@ -455,7 +463,7 @@ vector<double> Blocking(int nblocks,double<vector> & v){
 
 void DataBlocking(vector <double> value, vector <double> &sum_prog, vector <double> &err_prog){
     int N=sum_prog.size();
-    vector <double> su2_prog(N,0)
+    vector <double> su2_prog(N,0);
     
     for(int i=0;i<N;i++){
         for(int j=0;j<i+1;j++){
@@ -464,7 +472,7 @@ void DataBlocking(vector <double> value, vector <double> &sum_prog, vector <doub
         }
         sum_prog[i]=sum_prog[i]/(i+1);      //Cumulative average
         su2_prog[i]=su2_prog[i]/(i+1);      //Cumulative square average
-        err_prog[i] = error(su2_prog,sum_prog,i);
+        err_prog[i] = error(sum_prog,su2_prog,i);
     }
 }
 /****************************************************************

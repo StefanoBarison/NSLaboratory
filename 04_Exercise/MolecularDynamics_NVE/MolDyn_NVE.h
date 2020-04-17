@@ -7,6 +7,8 @@
 _/    _/  _/_/_/  _/_/_/_/ email: Davide.Galli@unimi.it
 *****************************************************************
 *****************************************************************/
+//#include<vector>
+
 //parameters, observables
 const int m_props=4;
 int n_props;
@@ -37,12 +39,12 @@ void ConfFinal(void);
 void ConfOld(void);
 void ConfXYZ(int);
 void Measure(void);
-void SaveMeasure(vector<double> &, vector<double> &, vector<double> &, vector<double> & );
+//void SaveMeasure(std::vector<double> &, std::vector<double> &, std::vector<double> &, std::vector<double> & );
 double Force(int, int);
 double Pbc(double);
-void BlockResults(int,vector<double> &, vector<double> &, vector<double> &, vector<double> &);
-double error(vector<double> &,vector<double> &, int);
-vector<double> Blocking(int,double<vector> &);
+//void BlockResults(int,vector<double> &, vector<double> &, vector<double> &, vector<double> &);
+//double error(vector<double> &,vector<double> &, int);
+//std::vector<double> Blocking(int,std::vector<double> &);
 /****************************************************************
 *****************************************************************
     _/    _/  _/_/_/  _/       Numerical Simulation Laboratory
