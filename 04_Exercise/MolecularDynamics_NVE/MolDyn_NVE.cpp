@@ -11,6 +11,7 @@ _/    _/  _/_/_/  _/_/_/_/ email: Davide.Galli@unimi.it
 #include <iostream>     // cin, cout: Standard Input/Output Streams Library
 #include <fstream>      // Stream class to both read and write from/to files.
 #include <cmath>        // rint, pow
+#include <vector>       // vector for data blocking
 #include "MolDyn_NVE.h"
 
 using namespace std;
@@ -18,8 +19,14 @@ using namespace std;
 int main(){ 
   Input();             //Inizialization
   int nconf = 1;
+  vector<double> v_e_tot;
+  vector<double> v_e_kin;
+  vector<double> v_e_pot;
+  vector<double> v_temp;
+    
   for(int istep=1; istep <= nstep; ++istep){
      Move();           //Move particles with Verlet algorithm
+     SaveMeasure(v_e_tot,v_e_kin,v_e_pot,v_temp);
      if(istep%iprint == 0) cout << "Number of time-steps: " << istep << endl;
      if(istep%10 == 0){
         Measure();     //Properties measurement
@@ -29,7 +36,9 @@ int main(){
      if(istep == nstep-1) ConfOld();
   }
   ConfFinal();         //Write final configuration to restart
-
+  
+  BlockResults(nblocks,v_e_tot,v_e_kin,v_e_pot,v_temp) //Calculate the values with the blocking methods and print it
+   
   return 0;
 }
 
@@ -65,6 +74,7 @@ void Input(void){ //Prepare all stuff for the simulation
   ReadInput >> nstep;
   ReadInput >> iprint;
   ReadInput >> restart;
+  ReadInput >> nblocks;
 
   cout << "The program integrates Newton equations with the Verlet method " << endl;
   cout << "Time step = " << delta << endl;
@@ -296,6 +306,43 @@ void Measure(){ //Properties measurement
     return;
 }
 
+void SaveMeasure(vector<double> & tot, vector<double> & kin, vector<double> & pot, vector<double> & temp){
+  int bin;
+  double v, t, vij;
+  double dx, dy, dz, dr;
+  
+  v = 0.0; //reset observables
+  t = 0.0;
+
+//cycle over pairs of particles
+  for (int i=0; i<npart-1; ++i){
+    for (int j=i+1; j<npart; ++j){
+
+     dx = Pbc( x[i] - x[j] );
+     dy = Pbc( y[i] - y[j] );
+     dz = Pbc( z[i] - z[j] );
+
+     dr = dx*dx + dy*dy + dz*dz;
+     dr = sqrt(dr);
+
+     if(dr < rcut){
+       vij = 4.0/pow(dr,12) - 4.0/pow(dr,6);
+
+//Potential energy
+       v += vij;
+     }
+    }          
+  }
+
+//Kinetic energy
+  for (int i=0; i<npart; ++i) t += 0.5 * (vx[i]*vx[i] + vy[i]*vy[i] + vz[i]*vz[i]);
+
+//Write data on vectors
+    pot.push_back(v/(double)npart); //Potential energy per particle
+    kin.push_back(t/(double)npart); //Kinetic energy per particle
+    temp.push_back((2.0 / 3.0) * t/(double)npart); //Temperature
+    tot.push_back((t+v)/(double)npart); //Total energy per particle
+}
 
 void ConfFinal(void){ //Write final configuration
   ofstream WriteConf;
@@ -310,6 +357,47 @@ void ConfFinal(void){ //Write final configuration
   return;
 }
 
+void BlockResults(int nblocks,vector<double> & tot, vector<double> & kin, vector<double> & pot, vector<double> & temp){
+  ofstream Epot, Ekin, Etot, Temp;
+   // Open the output files
+  Epot.open("ave_epot.dat");
+  Ekin.open("ave_ekin.dat");
+  Temp.open("ave_temp.dat");
+  Etot.open("ave_etot.dat");
+   
+  // Create the vectors with the results
+  double<vector> ave_tot=Blocking(nblocks,tot);
+  double<vector> sum_tot(nblocks,0);
+  double<vector> err_tot(nblocks,0);
+  double<vector> ave_pot=Blocking(nblocks,pot);
+  double<vector> sum_pot(nblocks,0);
+  double<vector> err_pot(nblocks,0);
+  double<vector> ave_kin=Blocking(nblocks,kin);
+  double<vector> sum_kin(nblocks,0);
+  double<vector> err_kin(nblocks,0);
+  double<vector> ave_temp=Blocking(nblocks,temp);
+  double<vector> sum_temp(nblocks,0);
+  double<vector> err_temp(nblocks,0);
+  
+  // And write the results
+  DataBlocking(ave_tot,sum_tot,err_tot);
+  DataBlocking(ave_pot,sum_pot,err_pot);
+  DataBlocking(ave_temp,sum_temp,err_temp);
+  DataBlocking(ave_kin,sum_kin,err_kin);
+
+  //Now write the results on files
+  
+    Epot << sum_pot  <<" "<<err_pot<< endl;
+    Ekin << sum_kin  <<" "<<err_kin<< endl;
+    Temp << sum_temp <<" "<<err_temp<< endl;
+    Etot << sum_etot <<" "<<err_tot<< endl;
+
+    Epot.close();
+    Ekin.close();
+    Temp.close();
+    Etot.close();
+}
+                  
 void ConfOld(void){
   ofstream WriteConf;
 
@@ -338,6 +426,46 @@ void ConfXYZ(int nconf){ //Write configuration in .xyz format
 
 double Pbc(double r){  //Algorithm for periodic boundary conditions with side L=box
     return r - box * rint(r/box);
+}
+
+double error(vector<double> & av,vector<double> & av2, int n){  // Error function used to calculate
+                                                                //statistical uncertainties
+    if (n==0){
+      return 0;
+    }
+    else{
+      return sqrt((av2[n]-pow(av[n],2))/n);
+    }
+}
+
+vector<double> Blocking(int nblocks,double<vector> & v){
+ vector<double> b_v;
+ int N= v.size()
+ int L= N/nblocks;
+ for(int i=0;i<nblocks;i++){
+     double sum=0;
+    for(int j=0;j<L;j++){
+      int k=j+i*L;
+      sum += v[k];
+      }
+    b_v.push_back(sum/L);
+  }
+  return b_v;
+}
+
+void DataBlocking(vector <double> value, vector <double> &sum_prog, vector <double> &err_prog){
+    int N=sum_prog.size();
+    vector <double> su2_prog(N,0)
+    
+    for(int i=0;i<N;i++){
+        for(int j=0;j<i+1;j++){
+            sum_prog[i]+=value[j];
+            su2_prog[i]+=pow(value[j],2);
+        }
+        sum_prog[i]=sum_prog[i]/(i+1);      //Cumulative average
+        su2_prog[i]=su2_prog[i]/(i+1);      //Cumulative square average
+        err_prog[i] = error(su2_prog,sum_prog,i);
+    }
 }
 /****************************************************************
 *****************************************************************
