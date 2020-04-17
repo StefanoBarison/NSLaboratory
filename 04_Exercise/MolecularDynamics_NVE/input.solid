@@ -5,6 +5,7 @@
 0.0005
 10000
 1000
+0
 
   ReadInput >> temp;
   ReadInput >> npart;
@@ -13,3 +14,4 @@
   ReadInput >> delta;
   ReadInput >> nstep;
   ReadInput >> iprint;
+  ReadInput >> restart;

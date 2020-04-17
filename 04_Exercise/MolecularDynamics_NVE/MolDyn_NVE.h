@@ -28,11 +28,13 @@ double energy,temp,vol,rho,box,rcut;
 // simulation
 int nstep, iprint, seed;
 double delta;
+int restart;
 
 //functions
 void Input(void);
 void Move(void);
 void ConfFinal(void);
+void ConfOld(void);
 void ConfXYZ(int);
 void Measure(void);
 double Force(int, int);

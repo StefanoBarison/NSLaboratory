@@ -26,6 +26,7 @@ int main(){
 //        ConfXYZ(nconf);//Write actual configuration in XYZ format //Commented to avoid "filesystem full"! 
         nconf += 1;
      }
+     if(istep == nstep-1) ConfOld();
   }
   ConfFinal();         //Write final configuration to restart
 
@@ -63,6 +64,7 @@ void Input(void){ //Prepare all stuff for the simulation
   ReadInput >> delta;
   ReadInput >> nstep;
   ReadInput >> iprint;
+  ReadInput >> restart;
 
   cout << "The program integrates Newton equations with the Verlet method " << endl;
   cout << "Time step = " << delta << endl;
@@ -76,7 +78,9 @@ void Input(void){ //Prepare all stuff for the simulation
   it = 3; //Temperature
   n_props = 4; //Number of observables
 
+if(restart==0){
 //Read initial configuration
+  cout<<"No restart"<< endl;
   cout << "Read initial configuration from file config.0 " << endl << endl;
   ReadConf.open("config.0");
   for (int i=0; i<npart; ++i){
@@ -120,6 +124,67 @@ void Input(void){ //Prepare all stuff for the simulation
      yold[i] = Pbc(y[i] - vy[i] * delta);
      zold[i] = Pbc(z[i] - vz[i] * delta);
    }
+}
+
+
+if(restart!=0){
+  cout<<"Restart"<<endl;
+  // Leggo l'ultima e la penultima configurazione
+  cout << "Read initial configuration from file config.0 " << endl << endl;
+  ReadConf.open("config.0");
+  for (int i=0; i<npart; ++i){
+    ReadConf >> x[i] >> y[i] >> z[i];
+    x[i] = x[i] * box;
+    y[i] = y[i] * box;
+    z[i] = z[i] * box;
+  }
+  ReadConf.close();
+
+  cout << "Read previous configuration from file old.0 " << endl << endl;
+  ReadConf.open("old.0");
+  for (int i=0; i<npart; ++i){
+    ReadConf >> xold[i] >> yold[i] >> zold[i];
+    xold[i] = xold[i] * box;
+    yold[i] = yold[i] * box;
+    zold[i] = zold[i] * box;
+  }
+  ReadConf.close();
+  // Ora eseguo uno step dell'algoritmo di Verlet, in modo tale da avete r(t+dt) e v(t)
+  Move();
+
+  //Calcolo della velocità al tempo t+dt/2
+  //for(int i=0;i<npart;++i){
+    //vx[i] = Pbc(x[i] - xold[i])/(delta);
+    //vy[i] = Pbc(y[i] - yold[i])/(delta);
+    //vz[i] = Pbc(z[i] - zold[i])/(delta);
+  //}
+
+  // Adesso stimo la temperatura T(t+dt/2), per avere il fattore di scala
+  double t=0.0;
+  double t_temp=0.0;
+  double fs;
+
+  for(int i=0; i<npart;++i) t += 0.5 * (vx[i]*vx[i] + vy[i]*vy[i] + vz[i]*vz[i]);
+
+  t_temp=(2.0 / 3.0) * t/(double)npart;
+  // Ora che ho la temperatura posso ricavare il fattore di scala fs= sqrt(temp/t_temp)
+  
+  cout<< "La temperatura precedente è "<< t_temp<< endl;
+  fs= sqrt(temp/t_temp);
+
+  //Riscaliamo le velocità e inizializziamo un nuovo xold,yold,zold
+  for (int i=0; i<npart; ++i){
+     vx[i] *= fs;
+     vy[i] *= fs;
+     vz[i] *= fs;
+
+     xold[i] = Pbc(x[i] - vx[i] * delta);
+     yold[i] = Pbc(y[i] - vy[i] * delta);
+     zold[i] = Pbc(z[i] - vz[i] * delta);
+   }
+
+  // Ora siamo pronti per partire: abbiamo un r(t+dt) e una nuova stima per r(t)
+}
    return;
 }
 
@@ -243,6 +308,20 @@ void ConfFinal(void){ //Write final configuration
   }
   WriteConf.close();
   return;
+}
+
+void ConfOld(void){
+  ofstream WriteConf;
+
+  cout<< "Print penultimate configuration to file old.final"<<endl<< endl;
+  WriteConf.open("old.final");
+
+  for (int i=0; i<npart; ++i){
+    WriteConf << x[i]/box << "   " <<  y[i]/box << "   " << z[i]/box << endl;
+  }
+  WriteConf.close();
+  return;
+
 }
 
 void ConfXYZ(int nconf){ //Write configuration in .xyz format
