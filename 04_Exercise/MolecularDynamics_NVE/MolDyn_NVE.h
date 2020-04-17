@@ -26,7 +26,7 @@ int npart;
 double energy,temp,vol,rho,box,rcut;
 
 // simulation
-int nstep, iprint, seed;
+int nstep, nblocks, iprint, seed;
 double delta;
 int restart;
 
@@ -37,8 +37,12 @@ void ConfFinal(void);
 void ConfOld(void);
 void ConfXYZ(int);
 void Measure(void);
+void SaveMeasure(vector<double> &, vector<double> &, vector<double> &, vector<double> & );
 double Force(int, int);
 double Pbc(double);
+void BlockResults(int,vector<double> &, vector<double> &, vector<double> &, vector<double> &);
+double error(vector<double> &,vector<double> &, int);
+vector<double> Blocking(int,double<vector> &);
 /****************************************************************
 *****************************************************************
     _/    _/  _/_/_/  _/       Numerical Simulation Laboratory
