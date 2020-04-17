@@ -16,3 +16,4 @@
   ReadInput >> nstep;
   ReadInput >> iprint;
   ReadInput >> restart;
+  ReadInput >> nblocks;
