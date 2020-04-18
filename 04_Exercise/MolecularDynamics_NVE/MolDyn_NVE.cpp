@@ -32,10 +32,10 @@ int main(){
     
   for(int istep=1; istep <= nstep; ++istep){
      Move();           //Move particles with Verlet algorithm
-     SaveMeasure(v_e_tot,v_e_kin,v_e_pot,v_temp);
+     //SaveMeasure(v_e_tot,v_e_kin,v_e_pot,v_temp);
      if(istep%iprint == 0) cout << "Number of time-steps: " << istep << endl;
      if(istep%10 == 0){
-        //Measure();     //Properties measurement
+        Measure();     //Properties measurement
 //        ConfXYZ(nconf);//Write actual configuration in XYZ format //Commented to avoid "filesystem full"! 
         nconf += 1;
      }
@@ -43,7 +43,7 @@ int main(){
   }
   ConfFinal();         //Write final configuration to restart
   
-  BlockResults(nblocks,v_e_tot,v_e_kin,v_e_pot,v_temp); //Calculate the values with the blocking methods and print it
+  //BlockResults(nblocks,v_e_tot,v_e_kin,v_e_pot,v_temp); //Calculate the values with the blocking methods and print it
    
   return 0;
 }
