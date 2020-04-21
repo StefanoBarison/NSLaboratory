@@ -10,7 +10,11 @@ ___TERZA LEZIONE___
 -Sistemare il notebook
 
 ___QUARTA LEZIONE___
+- Sostanzialmente completa, controllare che l'equilibrazione del gas di argon sia corretta
+- Controllare il senso fisico delle temperature ottenute 
 
+___QUINTA LEZIONE___
+-
 
 
 
