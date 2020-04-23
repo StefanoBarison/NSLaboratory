@@ -12,6 +12,7 @@ ___TERZA LEZIONE___
 ___QUARTA LEZIONE___
 - Sostanzialmente completa, controllare che l'equilibrazione del gas di argon sia corretta
 - Controllare il senso fisico delle temperature ottenute 
+- Energia totale del gas 
 
 ___QUINTA LEZIONE___
 -
