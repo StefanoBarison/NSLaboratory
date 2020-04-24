@@ -63,9 +63,18 @@ while(abs(ratio-t_ratio)>acceptance){ //This cycle let us equilibrate the system
   n_accept=0;
 
   for(int i=0; i<N_trials;i++){
+    //Standard equilibration 
+    /*
     r_x=t_x-delta+2*delta*rnd.Rannyu();
     r_z=t_z-delta+2*delta*rnd.Rannyu();
     r_z=t_z-delta+2*delta*rnd.Rannyu();
+    */
+
+    //Gaussian equilibration
+    r_x=t_x+rnd.Gauss(0,delta);
+    r_y=t_y+rnd.Gauss(0,delta);
+    r_z=t_z+rnd.Gauss(0,delta);
+
     r_p=wave_1s(r_x,r_y,r_z)/wave_1s(t_x,t_y,t_z);
     r_r=rnd.Rannyu();
 
@@ -105,7 +114,7 @@ cout<< "System equilibrated with delta= "<<delta<<" and a ratio of acceptance of
 
 
 int N= 1000000; //Number of throws
-int M= 1000; //Number of blocks
+int M= 100; //Number of blocks
 //int L= N/M; // Throws per block
 double p; //Ratio between probabilities
 double acc_r; //
@@ -129,9 +138,14 @@ cout<<"Simulate with metropolis algorithm"<<endl;
 
 for(int i=0;i<N-1;i++){
   //cout<<"ok"<<i<<endl;
+  /*
   t_x=x[i]-delta+ 2*delta*rnd.Rannyu();
   t_y=y[i]-delta+ 2*delta*rnd.Rannyu();
   t_z=z[i]-delta+ 2*delta*rnd.Rannyu();
+  */
+  t_x=x[i]+rnd.Gauss(0,delta);
+  t_y=y[i]+rnd.Gauss(0,delta);
+  t_z=z[i]+rnd.Gauss(0,delta);
 
   p=wave_1s(t_x,t_y,t_z)/wave_1s(x[i],y[i],z[i]);
 
@@ -164,21 +178,22 @@ DataBlocking(ave,sum_prog,err_prog);
 // And print the data
 
 cout<<"Printing data..."<<endl;
-ofstream points;
+//ofstream points;
 ofstream integral;
 
-points.open("1s_points.dat");
-integral.open("1s_integral.dat");
+//points.open("1s_points.dat");
+integral.open("1s_integral_gauss.dat");
 
+/*
 for(int i=0;i<N;i++){
   points<<x[i]<<","<<y[i]<<","<<z[i]<<endl;
 }
-
+*/
 for(int i=0;i<M;i++){
   integral<<i+1<<","<<sum_prog[i]<<","<<err_prog[i]<<endl;
 }
 
-points.close();
+//points.close();
 integral.close();
 
 
@@ -212,9 +227,16 @@ while(abs(ratio-t_ratio)>acceptance){ //This cycle let us equilibrate the system
   n_accept=0;
 
   for(int i=0; i<N_trials;i++){
+    /*
     r_x=t_x-delta+2*delta*rnd.Rannyu();
     r_z=t_z-delta+2*delta*rnd.Rannyu();
     r_z=t_z-delta+2*delta*rnd.Rannyu();
+    */
+
+    r_x=t_x+rnd.Gauss(0,delta);
+    r_y=t_y+rnd.Gauss(0,delta);
+    r_z=t_z+rnd.Gauss(0,delta);
+
     r_p=wave_2p(r_x,r_y,r_z)/wave_2p(t_x,t_y,t_z);
     r_r=rnd.Rannyu();
 
@@ -254,7 +276,7 @@ cout<< "System equilibrated with delta= "<<delta<<" and a ratio of acceptance of
 
 
 N= 1000000; //Number of throws
-M= 1000; //Number of blocks
+M= 100; //Number of blocks
 
 x=vector<double>(N,0);
 y=vector<double>(N,0);
@@ -275,9 +297,15 @@ cout<<"Simulate with metropolis algorithm"<<endl;
 
 for(int i=0;i<N-1;i++){
   //cout<<"ok"<<i<<endl;
+  /*
   t_x=x[i]-delta+ 2*delta*rnd.Rannyu();
   t_y=y[i]-delta+ 2*delta*rnd.Rannyu();
   t_z=z[i]-delta+ 2*delta*rnd.Rannyu();
+  */
+
+  t_x=x[i]+rnd.Gauss(0,delta);
+  t_y=y[i]+rnd.Gauss(0,delta);
+  t_z=z[i]+rnd.Gauss(0,delta);
 
   p=wave_2p(t_x,t_y,t_z)/wave_2p(x[i],y[i],z[i]);
 
@@ -311,18 +339,19 @@ DataBlocking(ave,sum_prog,err_prog);
 
 cout<<"Printing data..."<<endl;
 
-points.open("2p_points.dat");
-integral.open("2p_integral.dat");
+//points.open("2p_points.dat");
+integral.open("2p_integral_gauss.dat");
 
+/*
 for(int i=0;i<N;i++){
   points<<x[i]<<","<<y[i]<<","<<z[i]<<endl;
 }
-
+*/
 for(int i=0;i<M;i++){
   integral<<i+1<<","<<sum_prog[i]<<","<<err_prog[i]<<endl;
 }
 
-points.close();
+//points.close();
 integral.close();
 
 return 0;
