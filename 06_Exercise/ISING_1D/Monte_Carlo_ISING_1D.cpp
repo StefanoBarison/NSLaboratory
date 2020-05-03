@@ -13,6 +13,7 @@ _/    _/  _/_/_/  _/_/_/_/ email: Davide.Galli@unimi.it
 #include <ostream>
 #include <cmath>
 #include <iomanip>
+#include <string>
 #include "Monte_Carlo_ISING_1D.h"
 
 using namespace std;
@@ -191,12 +192,15 @@ void Move(int metro)
     }
     else if(metro==0)//Gibbs sampling
     {
+      attempted++;
       energy_up=Boltzmann(1,o);
       energy_down=Boltzmann(-1,o);
-      alpha=1/(1+exp(beta*(energy_down-energy_up)));
+      alpha=1/(1+exp(beta*(energy_up-energy_down)));
       p=rnd.Rannyu();
       if(p <alpha) s[o]=1;
       else s[o]=-1;
+
+      accepted++;
     }
   }
 }
