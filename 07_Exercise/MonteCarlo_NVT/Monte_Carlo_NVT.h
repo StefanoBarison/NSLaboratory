@@ -25,7 +25,8 @@ double walker[m_props];
 // averages
 double blk_av[m_props],blk_norm,accepted,attempted;
 double glob_av[m_props],glob_av2[m_props];
-double stima_pot,stima_pres,err_pot,err_press,err_gdir;
+double stima_pot,stima_pres,err_pot,err_press,err_g;
+double stima_g[m_props];
 
 //configuration
 const int m_part=108;
@@ -36,7 +37,7 @@ int npart;
 double beta,temp,vol,rho,box,rcut;
 
 // simulation
-int nstep, nblk;
+int nstep, nblk,read;
 double delta;
 
 //pigreco

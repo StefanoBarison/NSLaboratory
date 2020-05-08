@@ -10,10 +10,11 @@ _/    _/  _/_/_/  _/_/_/_/ email: Davide.Galli@unimi.it
 //#include<vector>
 
 //parameters, observables
-const int m_props=4;
-int n_props;
+const int m_props=1000;
+int n_props,igofr;
 int iv,ik,it,ie;
-double stima_pot, stima_kin, stima_etot, stima_temp;
+double stima_pot, stima_kin, stima_etot, stima_temp,stima_g[m_props];
+double bin_size,nbins,err_g;
 
 // averages
 double acc,att;
@@ -26,6 +27,7 @@ double vx[m_part],vy[m_part],vz[m_part];
 // thermodynamical state
 int npart;
 double energy,temp,vol,rho,box,rcut;
+double g[m_props];
 
 // simulation
 int nstep, nblocks, iprint, seed;

@@ -19,6 +19,10 @@ using namespace std;
 
 int main()
 { 
+  //ofstream inst_pres, inst_pot;
+  //inst_pres.open("gas_pres.dat");
+  //inst_pot.open("gas_epot.dat");
+
   Input(); //Inizialization
   int nconf = 1;
   for(int iblk=1; iblk <= nblk; ++iblk) //Simulation
@@ -29,10 +33,14 @@ int main()
       Move();
       Measure();
       Accumulate(); //Update block averages
+      /*
       if(istep%10 == 0){
-        ConfXYZ(nconf);//Write actual configuration in XYZ format //Commented to avoid "filesystem full"! 
-        nconf += 1;
-      }
+         ConfXYZ(nconf);//Write actual configuration in XYZ format //Commented to avoid "filesystem full"! 
+         nconf += 1;
+      }*/
+      // Printing instantaneous value to compute autocorrelations
+      //inst_pot << walker[iv]/(double)npart + vtail << endl;
+      //inst_pres << rho * temp + (walker[iw] + (double)npart * ptail) / vol << endl;
     }
     Averages(iblk);   //Print results for current block
   }
@@ -229,6 +237,12 @@ void Measure()
      dr = sqrt(dr);
 
 //update of the histogram of g(r)
+     for(int k=igofr;k<n_props;k++){
+      if(dr>=k*bin_size && dr< (k+1)*bin_size){
+        walker[k]+=2;
+      }
+     }
+
 
      if(dr < rcut)
      {
@@ -283,7 +297,7 @@ void Accumulate(void) //Update block averages
 void Averages(int iblk) //Print results for current block
 {
     
-   double r, gdir;
+   double V_norm;
    ofstream Gofr, Gave, Epot, Pres;
    const int wd=12;
     
@@ -305,12 +319,33 @@ void Averages(int iblk) //Print results for current block
     glob_av2[iw] += stima_pres*stima_pres;
     err_press=Error(glob_av[iw],glob_av2[iw],iblk);
 
+    for(int i=0;i<nbins;i++){
+      V_norm=rho*npart*4/3*pi*(pow((i+1)*bin_size,3)-pow(i*bin_size,3));
+      stima_g[i]=blk_av[i+igofr]/blk_norm/V_norm;
+      glob_av[i+igofr]+=stima_g[i];
+      glob_av2[i+igofr]+= stima_g[i]*stima_g[i];
+    }
+
 //Potential energy per particle
     Epot << setw(wd) << iblk <<  setw(wd) << stima_pot << setw(wd) << glob_av[iv]/(double)iblk << setw(wd) << err_pot << endl;
 //Pressure
     Pres << setw(wd) << iblk <<  setw(wd) << stima_pres << setw(wd) << glob_av[iw]/(double)iblk << setw(wd) << err_press << endl;
 
 //g(r)
+// For every block we print the block number and the values, not the error
+    Gofr << setw(wd) << iblk << " ";
+    for(int i=0;i<nbins;i++){
+      Gofr<<stima_g[i]<< " ";
+    }
+    Gofr<<endl;
+// If we are at the last block, print the final values fo g(r)
+    if(iblk==nblk){
+      for(int i=0;i<nbins;i++){
+        err_g=Error(glob_av[i+igofr],glob_av2[i+igofr],nblk);
+        Gave<< setw(wd) << i*bin_size << setw(wd) << glob_av[igofr+i]/nblk << setw(wd) << err_g << endl;
+      }
+      Gave.close();
+    }
 
     cout << "----------------------------" << endl << endl;
 

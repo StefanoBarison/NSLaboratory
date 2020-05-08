@@ -95,6 +95,12 @@ void Input(void){ //Prepare all stuff for the simulation
   it = 3; //Temperature
   n_props = 4; //Number of observables
 
+  //measurement of g(r)
+  igofr = 4;
+  nbins = 100;
+  n_props = n_props + nbins;
+  bin_size = (box/2.0)/(double)nbins;
+
 if(restart==0){
 //Read initial configuration
   cout<<"No restart"<< endl;
