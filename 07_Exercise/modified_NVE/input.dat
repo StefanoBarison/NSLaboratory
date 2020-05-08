@@ -1,19 +1,18 @@
-0.83
+0.80
 108
 1.1
 2.2
 0.0005
-10000
+10
 1000
 1
-100
 
   ReadInput >> temp;
   ReadInput >> npart;
   ReadInput >> rho;
   ReadInput >> rcut;
   ReadInput >> delta;
-  ReadInput >> nstep;
-  ReadInput >> iprint;
-  ReadInput >> restart;
-  ReadInput >> nblocks;
+  ReadInput >> nblk;
+  Readinput >> nstep;
+  Readinput >> restart;
+
