@@ -107,9 +107,15 @@ int main(){
 
 	cout<<"Evaluation with optimal parameters"<<endl;
 
-	double new_delta=1.0;
+	cout<<"First 10000 steps useful to equilibrate"<<endl;
 
-	vector<double> final=Metropolis_sampling(nsample,new_delta,0.0,best_mu,best_sigma);
+	double new_delta=1.1;
+
+	vector<double> equilibrate=Metropolis_sampling(10000,new_delta,0.0,best_mu,best_sigma);
+
+	cout<<"Then run the equilibrated algorithm"<<endl;
+
+	vector<double> final=Metropolis_sampling(nsample,new_delta,equilibrate[9999],best_mu,best_sigma);
 
 
 	vector<double> e_final(nsample,0);
@@ -136,11 +142,27 @@ int main(){
 	outdata.close();
 
 	//In the end we can also save the data sampled, in order to see the sampled squared wavefunction
+	//Let's create the histogram
+	cout<<"Creating the histogram"<<endl;
+
+	double range=6;
+	int nbins=1000;
+	double binsize=range/nbins;
+
+	vector<double> hist(nbins,0);
+
+	for(int j=0;j<nsample;j++){
+		for(int k=0;k<nbins;k++){
+			if(final[j]>(-3+k*binsize) && final[j]<(-3+(k+1)*binsize)){
+				hist[k]=hist[k]+1.0;
+			}
+		}
+	}
 
 	outdata.open("Wavefunction.dat");
 
-	for(int i=0;i<nsample;i++){
-		outdata<<final[i]<<endl;
+	for(int i=0;i<nbins;i++){
+		outdata<<-3+i*binsize<<" "<<hist[i]<<endl;
 	}
 
 	outdata.close();
