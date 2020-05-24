@@ -12,8 +12,12 @@
 #include<vector>
 #include<algorithm>
 #include<iterator>
+#include<random>
+#include<string>
 
-
+//Random generator
+//extern std::random_device radm;
+//extern std::mt19937_64 mt;
 
 class city{
 
@@ -53,13 +57,14 @@ public:
 	}
 
 	void Circle_initialize();
-	//void square_initialze();
+	void Square_initialize();
+	void File_initialize(std::istream & indata);
 	void Create_d_matrix();
 
 	double Distance(int i, int j);
 	double Get_size();
 
-	void Print();
+	void Print_cities();
 
 	void Print_d_matrix();
 
@@ -78,9 +83,13 @@ public:
 	//individual();
 	individual(std::vector<int> data){
 		_chromosome=data;
+		_lenght=0.0;
 	}
 
 	~individual();
+
+	bool operator ==(individual & ind2);
+	bool operator <(individual & ind2);
 
 	void Evaluate(map cities);
 
@@ -96,6 +105,7 @@ public:
 
 	bool Check();
 
+	void Swap_mutate();
 
 private:
 	std::vector<int> _chromosome;
@@ -120,9 +130,23 @@ public:
 	}
 
 	void Initialize();
+	void Evaluate_all(map cities);
 
 	individual* Get_individual(int i);
-	double Get_size();
+	double Get_size(); 
+
+	void Print_best(map cities);
+	individual* Get_best(map cities);
+	double Get_best_average(map cities);
+
+	void Sort(map cities); //A function to sort the population from the shortest path to the longest
+
+	void Wheel_selection(map cities); //A function to perform the roulette wheel selection
+
+	void Elitism(map cities,int elite); //A function to perform selection saving always the best candidates of a population,
+							  // ie the best candidates are always passed to the next generation
+
+	void Evolutive_step(map cities, std::string type);
 
 private:
 	int _size;
@@ -131,6 +155,12 @@ private:
 
 };
 
+
+
+// Useful functions
+
+
+void Crossover(individual * t1,individual * t2);
 
 
 #endif
