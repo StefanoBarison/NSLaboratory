@@ -107,6 +107,8 @@ public:
 
 	void Swap_mutate();
 
+	void Push_back_mutate();
+
 private:
 	std::vector<int> _chromosome;
 	double _lenght;
