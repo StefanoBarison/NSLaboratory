@@ -15,13 +15,13 @@ int main (){
 	//Constants for the GA
 	int n_cities=32;
 	int n_ind=1000;
-	int n_steps=10000;
+	int n_steps=500;
 	string type ("Elitism");
 	ifstream indata;
 
 	//initialize the map with n_cities random cities on a circumference and printing them
 
-	indata.open("circle.dat"); 
+	indata.open("square.dat"); 
 
 	map m(n_cities);
 	//m.Circle_initialize();
@@ -58,8 +58,8 @@ int main (){
 	//Save the data
 	ofstream outdata1,outdata2;
 
-	outdata1.open("results/best_circle_elitism.dat");
-	outdata2.open("results/average_circle_elitism.dat");
+	outdata1.open("results/best_square_elitism.dat");
+	outdata2.open("results/average_square_elitism.dat");
 
 	for(unsigned int i=0;i<best_result.size();i++){
 		outdata1<<i<<","<<best_result[i]<<endl;

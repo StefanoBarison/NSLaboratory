@@ -113,6 +113,56 @@ void individual::Swap_mutate(){
 	swap(_chromosome[x],_chromosome[y]);
 }
 
+void individual:: Push_back_mutate(int n){
+	vector<int> new_chromo;
+
+	new_chromo.push_back(0);
+
+	for(unsigned int i=n+1;i<_chromosome.size();i++){
+		new_chromo.push_back(_chromosome[i]);
+	}
+
+	for(int i=1;i<=n;i++){
+		new_chromo.push_back(_chromosome[i]);
+	}
+
+	_chromosome=new_chromo;
+}
+
+void individual:: Multi_swap_mutate(int n){
+	int size=_chromosome.size();
+	uniform_int_distribution<> dist(1,size-n);
+
+	int x=dist(mt);
+	int y=dist(mt);
+
+	while(abs(x-y)<n){
+		y=dist(mt);
+	}
+
+	for(int i=0;i<n;i++){
+		swap(_chromosome[x+i],_chromosome[y+i]);
+	}
+}
+
+void individual:: Uniform_swap_mutate(double p_u){
+	int size=_chromosome.size();
+	uniform_int_distribution<> dis(1,size-1);
+	uniform_real_distribution<> r_dist(0,1);
+
+	for(int i=1;i<size;i++){
+		double r=r_dist(mt);
+		if(r<p_u){
+			int y=dis(mt);
+			while(y==i){
+				y=dis(mt);
+			}
+			swap(_chromosome[i],_chromosome[y]);
+		}
+	}
+
+}
+
 ////////////////////
 //Class population//
 ////////////////////
@@ -317,8 +367,11 @@ void population:: Evolutive_step(map cities,string type){
 	if(type=="Roulette"){
 		cout<<"Performing roulette wheel selection..."<<endl;
 		//Mutate the individuals with a probability m_p and crossover with a probability c_p
-		double m_p=0.10;
-		double c_p=0.50;
+		double m_p1=0.03;
+		double m_p2=0.09;
+		double m_p3=0.10;
+		double m_p4=0.12;
+		double c_p=0.60;
 
 		uniform_real_distribution<> dist(0,1);
 		uniform_int_distribution<> int_dist(0,_size-1);
@@ -334,9 +387,21 @@ void population:: Evolutive_step(map cities,string type){
 
 		for(int i=0;i<_size;i++){
 			double r2=dist(mt);
-			if(r2<m_p){
+			if(r2<m_p1){
 				this->Get_individual(i)->Swap_mutate();
 			}
+			
+			if(r2>m_p1 && r2<m_p2){
+				this->Get_individual(i)->Push_back_mutate(2);
+			}
+			
+			if(r2>m_p2 && r2<m_p3){
+				this->Get_individual(i)->Multi_swap_mutate(3);
+			}
+			/*
+			if(r2>m_p3 && r2<m_p4){
+				this->Get_individual(i)->Uniform_swap_mutate(0.001);
+			}*/
 		}
 
 		//Now select the best individuals and take to the next generation
@@ -359,7 +424,10 @@ void population:: Evolutive_step(map cities,string type){
 		}
 
 		//Now perform mutations and crossovers
-		double m_p=0.10;
+		double m_p1=0.05;
+		double m_p2=0.10;
+		double m_p3=0.12;
+		double m_p4=0.15;
 		double c_p=0.50;
 
 		uniform_real_distribution<> dist(0,1);
@@ -376,8 +444,19 @@ void population:: Evolutive_step(map cities,string type){
 
 		for(int i=0;i<_size;i++){
 			double r2=dist(mt);
-			if(r2<m_p){
+			if(r2<m_p1){
 				this->Get_individual(i)->Swap_mutate();
+			}
+			if(r2>m_p1 && r2<m_p2){
+				this->Get_individual(i)->Push_back_mutate(2);
+			}
+
+			if(r2>m_p2 && r2<m_p3){
+				this->Get_individual(i)->Multi_swap_mutate(3);
+			}
+
+			if(r2>m_p3 && r2<m_p4){
+				this->Get_individual(i)->Uniform_swap_mutate(0.1);
 			}
 		}
 

@@ -107,7 +107,11 @@ public:
 
 	void Swap_mutate();
 
-	void Push_back_mutate();
+	void Push_back_mutate(int n);
+
+	void Multi_swap_mutate(int n);
+
+	void Uniform_swap_mutate(double p_u);
 
 private:
 	std::vector<int> _chromosome;
