@@ -370,7 +370,6 @@ void population:: Evolutive_step(map cities,string type){
 		double m_p1=0.03;
 		double m_p2=0.09;
 		double m_p3=0.10;
-		double m_p4=0.12;
 		double c_p=0.60;
 
 		uniform_real_distribution<> dist(0,1);
@@ -398,10 +397,6 @@ void population:: Evolutive_step(map cities,string type){
 			if(r2>m_p2 && r2<m_p3){
 				this->Get_individual(i)->Multi_swap_mutate(3);
 			}
-			/*
-			if(r2>m_p3 && r2<m_p4){
-				this->Get_individual(i)->Uniform_swap_mutate(0.001);
-			}*/
 		}
 
 		//Now select the best individuals and take to the next generation
@@ -415,7 +410,7 @@ void population:: Evolutive_step(map cities,string type){
 		//First, we have to save the best candidates
 
 		vector<individual> elite;
-		int n_elite=5;
+		int n_elite=30;
 
 		this->Sort(cities);
 

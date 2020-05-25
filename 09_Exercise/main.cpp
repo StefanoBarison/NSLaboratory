@@ -15,7 +15,7 @@ int main (){
 	//Constants for the GA
 	int n_cities=32;
 	int n_ind=1000;
-	int n_steps=500;
+	int n_steps=1000;
 	string type ("Elitism");
 	ifstream indata;
 
@@ -58,8 +58,8 @@ int main (){
 	//Save the data
 	ofstream outdata1,outdata2;
 
-	outdata1.open("results/best_square_elitism.dat");
-	outdata2.open("results/average_square_elitism.dat");
+	outdata1.open("results/test.dat");
+	outdata2.open("results/test_average.dat");
 
 	for(unsigned int i=0;i<best_result.size();i++){
 		outdata1<<i<<","<<best_result[i]<<endl;
