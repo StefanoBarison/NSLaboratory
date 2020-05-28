@@ -54,8 +54,8 @@ public:
 		_distances.clear();
 	}
 
-	void Circle_initialize(Random rnd);
-	void Square_initialize(Random rnd);
+	void Circle_initialize(Random *rnd);
+	void Square_initialize(Random *rnd);
 	void File_initialize(std::istream & indata);
 	void Create_d_matrix();
 
@@ -103,13 +103,13 @@ public:
 
 	bool Check();
 
-	void Swap_mutate(Random rnd);
+	void Swap_mutate(Random* rnd);
 
-	void Push_back_mutate(int n, Random rnd);
+	void Push_back_mutate(int n);
 
-	void Multi_swap_mutate(int n, Random rnd);
+	void Multi_swap_mutate(int n, Random *rnd);
 
-	void Uniform_swap_mutate(double p_u, Random rnd);
+	void Uniform_swap_mutate(double p_u, Random* rnd);
 
 private:
 	std::vector<int> _chromosome;
@@ -133,7 +133,7 @@ public:
 		_pop.clear();
 	}
 
-	void Initialize(Random rnd);
+	void Initialize(Random* rnd);
 	void Evaluate_all(map cities);
 
 	individual* Get_individual(int i);
@@ -146,7 +146,7 @@ public:
 	void Sort(map cities); //A function to sort the population from the shortest path to the longest
 
 
-	void Simulated_annealing(map cities, double temp, Random rnd); //A function to perform a simulated annealing search based 
+	void Simulated_annealing(map cities, double temp, Random* rnd); //A function to perform a simulated annealing search based 
 													  // on a decreasing temperature and on the lenght difference
 													  // between paths, it uses the Random number generator
 

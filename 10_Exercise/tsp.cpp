@@ -13,7 +13,7 @@
 #include "tsp.h"
 #include "Random.h"
 
-
+   
 
 
 using namespace std;
@@ -97,13 +97,13 @@ individual::~individual(){
 	_chromosome.clear();
 }
 
-void individual::Swap_mutate(Random rnd){
+void individual::Swap_mutate(Random* rnd){
 	int size=_chromosome.size();
-	int x=(int)rnd.Rannyu(1,size);
-	int y=(int)rnd.Rannyu(1,size);
+	int x=(int)rnd->Rannyu(1,size);
+	int y=(int)rnd->Rannyu(1,size);
 
 	while(x==y){
-		y=(int)rnd.Rannyu(1,size);
+		y=(int)rnd->Rannyu(1,size);
 	}
 
 	swap(_chromosome[x],_chromosome[y]);
@@ -125,14 +125,14 @@ void individual:: Push_back_mutate(int n){
 	_chromosome=new_chromo;
 }
 
-void individual:: Multi_swap_mutate(int n, Random rnd){
+void individual:: Multi_swap_mutate(int n, Random* rnd){
 	int size=_chromosome.size();
 
-	int x=(int)rnd.Rannyu(1,size-n+1);
-	int y=(int)rnd.Rannyu(1,size-n+1);
+	int x=(int)rnd->Rannyu(1,size-n+1);
+	int y=(int)rnd->Rannyu(1,size-n+1);
 
 	while(abs(x-y)<n){
-		y=(int)rnd.Rannyu(1,size-n+1);
+		y=(int)rnd->Rannyu(1,size-n+1);
 	}
 
 	for(int i=0;i<n;i++){
@@ -140,17 +140,17 @@ void individual:: Multi_swap_mutate(int n, Random rnd){
 	}
 }
 
-void individual:: Uniform_swap_mutate(double p_u, Random rnd){
+void individual:: Uniform_swap_mutate(double p_u, Random* rnd){
 	int size=_chromosome.size();
 	uniform_int_distribution<> dis(1,size-1);
 	uniform_real_distribution<> r_dist(0,1);
 
 	for(int i=1;i<size;i++){
-		double r=rnd.Rannyu();
+		double r=rnd->Rannyu();
 		if(r<p_u){
-			int y=(int)rnd.Rannyu(1,size);
+			int y=(int)rnd->Rannyu(1,size);
 			while(y==i){
-				y=(int)rnd.Rannyu(1,size);
+				y=(int)rnd->Rannyu(1,size);
 			}
 			swap(_chromosome[i],_chromosome[y]);
 		}
@@ -162,7 +162,7 @@ void individual:: Uniform_swap_mutate(double p_u, Random rnd){
 //Class population//
 ////////////////////
 
-void population:: Initialize(Random rnd){
+void population:: Initialize(Random* rnd){
 	vector<int> reference;
 	for(int i=0;i<_ncities;i++){
 		reference.push_back(i);
@@ -237,7 +237,7 @@ void population:: Sort(map cities){
 
 }
 
-void population:: Simulated_annealing(map cities,double temp, Random rnd){
+void population:: Simulated_annealing(map cities,double temp, Random* rnd){
 	this -> Sort(cities);
 	// In simulated annealing we modify the solution candidates with random mutation (maybe uniform mutation)
 	// in order to obtain a new candidate, we evaluate its path lenght and decide to accept or reject it
@@ -247,22 +247,20 @@ void population:: Simulated_annealing(map cities,double temp, Random rnd){
 	for(int i=0;i<_size;i++){
 		vector<int> proposal=_pop[i].Get_genes();
 
-		//Now we are going to modify the vector uniformly
-		int i_size=proposal.size();
-
 		//Create a new individual
 
 		individual new_ind(proposal);
 
 		//Modify randomly and evaluate
 
-		double m_p1=0.25, m_p2=0.5, m_p3=0.75, m_p4=1.00;
-		double p_u=0.1;
-		double r_p=rnd.Rannyu();
+		double m_p1=0.10, m_p2=0.50, m_p3=0.7, m_p4=1.00;
+		double p_u=0.001;
+		double r_p=rnd->Rannyu();
 
+		
 		if(r_p<m_p1) new_ind.Swap_mutate(rnd);
 		else if(r_p<m_p2 && r_p>=m_p1) new_ind.Push_back_mutate(2);
-		else if(r_p<m_p3 && r_p>=m_p2) new_ind.Multi_swap_mutate(3,rnd);
+		else if(r_p<m_p3 && r_p>=m_p2) new_ind.Multi_swap_mutate(6,rnd);
 		else if(r_p<m_p4 && r_p>=m_p3) new_ind.Uniform_swap_mutate(p_u,rnd);
 
 		new_ind.Evaluate(cities);
@@ -273,14 +271,19 @@ void population:: Simulated_annealing(map cities,double temp, Random rnd){
 			_pop[i]=new_ind;
 		}
 
-		else if(new_ind>_pop[i]){
+		else if(new_ind==_pop[i]){
+			_pop[i]=new_ind;
+		}
+
+		else if(_pop[i]<new_ind){
 			double e1=new_ind.Get_lenght();
 			double e2=_pop[i].Get_lenght();
-			double prob= exp((e1-e2)/temp);
+			double prob= exp((e2-e1)/temp);
+			cout<< "Boltzmann probability: "<<prob<<endl;
 
-			double b_r=rnd.Rannyu();
+			double b_r=rnd->Rannyu();
 
-			if(b_r<probl){
+			if(b_r<prob){
 				_pop[i]=new_ind;
 			}
 		}
@@ -332,11 +335,11 @@ void map:: Create_d_matrix(){
 }
 
 
-void map::Circle_initialize(Random rnd){
+void map::Circle_initialize(Random* rnd){
 	double l=10.0;
 
     for(int i=0;i<_ncities;i++){
-    	double theta=rnd.Rannyu(0,2*M_PI);
+    	double theta=rnd->Rannyu(0,2*M_PI);
 
     	city new_city(l*cos(theta),l*sin(theta));
 
@@ -345,13 +348,13 @@ void map::Circle_initialize(Random rnd){
 
 }
 
-void map::Square_initialize(Random rnd){
+void map::Square_initialize(Random* rnd){
 	double l=10.0;
 
 
 	for(int i=0;i<_ncities;i++){
-		double x=rnd.Rannyu(-l,l);
-		double y=rnd.Rannyu(-l,l);
+		double x=rnd->Rannyu(-l,l);
+		double y=rnd->Rannyu(-l,l);
 
 		city new_city(x,y);
 		_cities.push_back(new_city);
