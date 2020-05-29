@@ -111,6 +111,8 @@ public:
 
 	void Uniform_swap_mutate(double p_u, Random* rnd);
 
+	void Inversion_mutate(int n, Random* rnd);
+
 private:
 	std::vector<int> _chromosome;
 	double _lenght;
@@ -157,5 +159,7 @@ private:
 
 };
 
+
+void Crossover(individual * t1,individual * t2, Random* rnd);
 
 #endif

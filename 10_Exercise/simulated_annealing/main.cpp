@@ -40,10 +40,10 @@ int main(int argc, char *argv[]){
  // We can start with our simulated annealing algorithm, define useful quantities
   int n_cities=32;
   int n_ind=1;
-  int n_steps=150000;
+  int n_steps=100000;
 
   ifstream indata;
-  indata.open("circle.dat");
+  indata.open("square.dat");
 
   //initialize the map with the cities from previous lesson
   map m(n_cities);
@@ -65,7 +65,7 @@ int main(int argc, char *argv[]){
 
   vector<double> temperatures;
 
-  for(int i=0;i<150000;i++){
+  for(int i=0;i<100000;i++){
     /*if(i<1000) temperatures.push_back(4.0);
     else if(i>=1000 && i<2000) temperatures.push_back(3.5);
     else if(i>=2000 && i<3000) temperatures.push_back(3.0);
@@ -74,16 +74,19 @@ int main(int argc, char *argv[]){
     else if(i>=8000 && i<10000) temperatures.push_back(0.1);
     else if(i>=10000 && i<15000) temperatures.push_back(0.05);*/
 
-    if(i<30000) temperatures.push_back(4.0-i*0.0001);
-    else if(i>=30000 && i<50000) temperatures.push_back(0.03);
-    else if(i>= 50000) temperatures.push_back(0.003);
+    if(i<1000) temperatures.push_back(50.0-i*0.046);
+    else if(i>=1000 && i<2000) temperatures.push_back(4-(i-1000)*0.003);
+    else if(i>= 2000 && i<3000) temperatures.push_back(0.3);
+    else if (i>=3000 && i<10000) temperatures.push_back(0.01);
+    else if (i>=10000) temperatures.push_back(0.0001);
+
     
   }
 
   //Perform the SA and print the results on a file
 
   ofstream outdata;
-  outdata.open("test.dat");
+  outdata.open("results/best_square_annealing.dat");
 
   for (int i = 0; i < n_steps; ++i){
 
@@ -98,7 +101,7 @@ int main(int argc, char *argv[]){
   }
 
   for(unsigned int i=0;i<best_result.size();i++){
-    outdata<<i<<","<<best_result[i]<<endl;
+    outdata<<i<<","<<temperatures[i]<<","<<best_result[i]<<endl;
   }
 
 

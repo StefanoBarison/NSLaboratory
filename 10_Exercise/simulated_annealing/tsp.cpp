@@ -128,11 +128,11 @@ void individual:: Push_back_mutate(int n){
 void individual:: Multi_swap_mutate(int n, Random* rnd){
 	int size=_chromosome.size();
 
-	int x=(int)rnd->Rannyu(1,size-n+1);
-	int y=(int)rnd->Rannyu(1,size-n+1);
+	int x=(int)rnd->Rannyu(1,size-n);
+	int y=(int)rnd->Rannyu(1,size-n);
 
 	while(abs(x-y)<n){
-		y=(int)rnd->Rannyu(1,size-n+1);
+		y=(int)rnd->Rannyu(1,size-n);
 	}
 
 	for(int i=0;i<n;i++){
@@ -142,8 +142,6 @@ void individual:: Multi_swap_mutate(int n, Random* rnd){
 
 void individual:: Uniform_swap_mutate(double p_u, Random* rnd){
 	int size=_chromosome.size();
-	uniform_int_distribution<> dis(1,size-1);
-	uniform_real_distribution<> r_dist(0,1);
 
 	for(int i=1;i<size;i++){
 		double r=rnd->Rannyu();
@@ -155,6 +153,16 @@ void individual:: Uniform_swap_mutate(double p_u, Random* rnd){
 			swap(_chromosome[i],_chromosome[y]);
 		}
 	}
+
+}
+
+void individual:: Inversion_mutate(int n,Random * rnd){
+	int size=_chromosome.size();
+
+	int x= (int)rnd->Rannyu(1,size-n);
+	int y=x+n;
+
+	reverse(_chromosome.begin()+x,_chromosome.begin()+y);
 
 }
 
@@ -171,7 +179,7 @@ void population:: Initialize(Random* rnd){
 	for(int i=0;i<_size;i++){
 		individual new_one(reference);
 
-		for(int j=0;j<100;j++){
+		for(int j=0;j<1000;j++){
 			new_one.Swap_mutate(rnd);
 			new_one.Uniform_swap_mutate(0.3,rnd);
 		}
@@ -243,32 +251,59 @@ void population:: Simulated_annealing(map cities,double temp, Random* rnd){
 	// in order to obtain a new candidate, we evaluate its path lenght and decide to accept or reject it
 
 	//usually simulated annealing is performed on only one solution, but here we can do for _size individuals
-
+cout<<"=================="<<endl;
 	for(int i=0;i<_size;i++){
+		cout<<"Individual: "<<i<<endl;
+		_pop[i].Print();
+		_pop[i].Print_lenght();
+
 		vector<int> proposal=_pop[i].Get_genes();
 
 		//Create a new individual
 
 		individual new_ind(proposal);
+		individual old_ind(proposal);
 
-		//Modify randomly and evaluate
+		//Modify randomly
 
-		double m_p1=0.10, m_p2=0.50, m_p3=0.7, m_p4=1.00;
-		double p_u=0.001;
+		double m_p1=0.30, m_p2=0.40, m_p3=0.60, m_p4=0.95, m_p5=1.00;
+		double p_u=0.01;
+		double c_p=0.6;
 		double r_p=rnd->Rannyu();
+		double r_c=rnd->Rannyu();
 
-		
+		cout<<"Number for random mutation: "<<r_p<<endl;
+
+		if(_pop[i].Get_lenght()>60.0){
 		if(r_p<m_p1) new_ind.Swap_mutate(rnd);
-		else if(r_p<m_p2 && r_p>=m_p1) new_ind.Push_back_mutate(2);
-		else if(r_p<m_p3 && r_p>=m_p2) new_ind.Multi_swap_mutate(6,rnd);
-		else if(r_p<m_p4 && r_p>=m_p3) new_ind.Uniform_swap_mutate(p_u,rnd);
+		else if(r_p<m_p2 && r_p>=m_p1) new_ind.Push_back_mutate(3);
+		else if(r_p<m_p3 && r_p>=m_p2) new_ind.Multi_swap_mutate(2,rnd);
+		else if(r_p<m_p4 && r_p>=m_p3) new_ind.Inversion_mutate(10,rnd);
+		else if(r_p<m_p5 && r_p>=m_p4) new_ind.Uniform_swap_mutate(p_u,rnd);
+		}
+		
+		//Crossover between the old and the new proposal
+		if(r_c<c_p){
+			Crossover(& old_ind,& new_ind,rnd);
+			cout<<"Crossover"<<endl;
+		}
 
 		new_ind.Evaluate(cities);
+		old_ind.Evaluate(cities);
+
+		if(old_ind<new_ind){
+			new_ind=old_ind;
+		}
+
+		cout<<"New proposal: "<<endl;
+		new_ind.Print();
+		new_ind.Print_lenght();
 
 		//Now accept/reject the move
 
 		if(new_ind<_pop[i]){
 			_pop[i]=new_ind;
+			cout<<"***Accepted***"<<endl;
 		}
 
 		else if(new_ind==_pop[i]){
@@ -282,12 +317,19 @@ void population:: Simulated_annealing(map cities,double temp, Random* rnd){
 			cout<< "Boltzmann probability: "<<prob<<endl;
 
 			double b_r=rnd->Rannyu();
+			cout<<"Random number: "<<b_r<<endl;
 
 			if(b_r<prob){
 				_pop[i]=new_ind;
 			}
+
+			else if(b_r>prob){
+				cout<<"***rejected***"<<endl;
+			}
 		}
 	}
+
+
 }
 
 
@@ -391,5 +433,43 @@ void map::Print_d_matrix(){
 		}
 		cout<<endl;
 	}
+}
+
+
+void Crossover(individual * t1,individual * t2, Random* rnd){
+	vector<int> p1=t1->Get_genes();
+	vector<int> p2=t2->Get_genes();
+
+	int size=p1.size();
+
+	vector<int> s1;
+	vector<int> s2;
+
+
+	int r=(int)rnd->Rannyu(1,size);
+
+	//cout<<r<<endl;
+
+	for(int i=0;i<r;i++){
+		s1.push_back(p1[i]);
+		s2.push_back(p2[i]);
+	}
+
+	for(int i=0;i<size;i++){
+
+		int a=p1[i];
+		int b=p2[i];
+
+		if(any_of(p1.begin()+r,p1.end(),[b](int k){return k==b;})){
+			s1.push_back(p2[i]);
+		}
+		if(any_of(p2.begin()+r,p2.end(),[a](int k){return k==a;})){
+			s2.push_back(p1[i]);
+		}
+	}
+
+
+	t1->Set_genes(s1);
+	t2->Set_genes(s2);
 }
 
