@@ -66,14 +66,7 @@ int main(int argc, char *argv[]){
   vector<double> temperatures;
 
   for(int i=0;i<100000;i++){
-    /*if(i<1000) temperatures.push_back(4.0);
-    else if(i>=1000 && i<2000) temperatures.push_back(3.5);
-    else if(i>=2000 && i<3000) temperatures.push_back(3.0);
-    else if(i>=3000 && i<5000) temperatures.push_back(2.0);
-    else if(i>=5000 && i<8000) temperatures.push_back(0.5);
-    else if(i>=8000 && i<10000) temperatures.push_back(0.1);
-    else if(i>=10000 && i<15000) temperatures.push_back(0.05);*/
-
+    
     if(i<1000) temperatures.push_back(50.0-i*0.046);
     else if(i>=1000 && i<2000) temperatures.push_back(4-(i-1000)*0.003);
     else if(i>= 2000 && i<3000) temperatures.push_back(0.3);

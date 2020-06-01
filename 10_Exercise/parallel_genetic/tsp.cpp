@@ -8,6 +8,7 @@
 #include<algorithm>
 #include<iterator>
 #include<string>
+#include "mpi.h"
 
 //Personal
 #include "tsp.h"
@@ -365,18 +366,18 @@ void population::Elitism(map cities, int elite, Random* rnd){
 void population:: Evolutive_step(map cities,string type,Random* rnd){
 	
 	if(type=="Roulette"){
-		cout<<"Performing roulette wheel selection..."<<endl;
+		//cout<<"Performing roulette wheel selection..."<<endl;
 		//Mutate the individuals with a probability m_p and crossover with a probability c_p
 		double m_p1=0.03;
 		double m_p2=0.09;
 		double m_p3=0.10;
-		double c_p=0.60;;
+		double c_p=0.60;
 		
 		for(int i=0;i<_size-1;i++){
 			double r1=rnd->Rannyu();
 			if(r1<c_p){
 				int r_i=(int)rnd->Rannyu(0,_size);
-				Crossover(&_pop[i],&_pop[r_i]);
+				Crossover(&_pop[i],&_pop[r_i],rnd);
 			}
 		}
 
@@ -384,7 +385,7 @@ void population:: Evolutive_step(map cities,string type,Random* rnd){
 		for(int i=0;i<_size;i++){
 			double r2=rnd->Rannyu();
 			if(r2<m_p1){
-				this->Get_individual(i)->Swap_mutate();
+				this->Get_individual(i)->Swap_mutate(rnd);
 			}
 			
 			if(r2>m_p1 && r2<m_p2){
@@ -392,22 +393,25 @@ void population:: Evolutive_step(map cities,string type,Random* rnd){
 			}
 			
 			if(r2>m_p2 && r2<m_p3){
-				this->Get_individual(i)->Multi_swap_mutate(3);
+				this->Get_individual(i)->Multi_swap_mutate(3,rnd);
 			}
+			/*if(r2>m_p3 && r2<m_p4){
+				this->Get_individual(i)->Inversion_mutate(4,rnd);
+			}*/
 		}
 
 		//Now select the best individuals and take to the next generation
 
-		this->Wheel_selection(cities);
+		this->Wheel_selection(cities,rnd);
 	}
 
 
 	else if(type=="Elitism"){
-		cout<<"Performing roulette wheel selection with elitism..."<<endl;
+		//cout<<"Performing roulette wheel selection with elitism..."<<endl;
 		//First, we have to save the best candidates
 
 		vector<individual> elite;
-		int n_elite=30;
+		int n_elite=5;
 
 		this->Sort(cities);
 
@@ -426,7 +430,7 @@ void population:: Evolutive_step(map cities,string type,Random* rnd){
 			double r1=rnd->Rannyu();
 			if(r1<c_p){
 				int r_i=(int)rnd->Rannyu(0,_size);
-				Crossover(&_pop[i],&_pop[r_i]);
+				Crossover(&_pop[i],&_pop[r_i],rnd);
 			}
 		}
 
@@ -434,18 +438,18 @@ void population:: Evolutive_step(map cities,string type,Random* rnd){
 		for(int i=0;i<_size;i++){
 			double r2=rnd->Rannyu();
 			if(r2<m_p1){
-				this->Get_individual(i)->Swap_mutate();
+				this->Get_individual(i)->Swap_mutate(rnd);
 			}
 			if(r2>m_p1 && r2<m_p2){
 				this->Get_individual(i)->Push_back_mutate(2);
 			}
 
 			if(r2>m_p2 && r2<m_p3){
-				this->Get_individual(i)->Multi_swap_mutate(3);
+				this->Get_individual(i)->Multi_swap_mutate(3,rnd);
 			}
 
 			if(r2>m_p3 && r2<m_p4){
-				this->Get_individual(i)->Uniform_swap_mutate(0.1);
+				this->Get_individual(i)->Inversion_mutate(5,rnd);
 			}
 		}
 
@@ -458,7 +462,7 @@ void population:: Evolutive_step(map cities,string type,Random* rnd){
 		this->Sort(cities);
 
 		//...and perform selection
-		this->Elitism(cities,n_elite);
+		this->Elitism(cities,n_elite,rnd);
 	}
 }
 

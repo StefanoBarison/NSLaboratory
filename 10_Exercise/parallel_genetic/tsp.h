@@ -14,6 +14,7 @@
 #include<iterator>
 #include<random>
 #include<string>
+#include"mpi.h"
 #include"Random.h"
 
 
@@ -149,7 +150,7 @@ public:
 
 	void Wheel_selection(map cities, Random* rnd);
 	void Elitism(map cities, int elite, Random* rnd);
-	void Evolutive_step(map cities,string type,Random* rnd);
+	void Evolutive_step(map cities,std::string type,Random* rnd);
 
 	void Simulated_annealing(map cities, double temp, Random* rnd); //A function to perform a simulated annealing search based 
 													  // on a decreasing temperature and on the lenght difference
