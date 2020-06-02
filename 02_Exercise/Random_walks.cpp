@@ -153,6 +153,8 @@ public:
 };
 
 
+
+
 int main (int argc, char *argv[]){
 
    Random rnd;
@@ -222,7 +224,7 @@ int main (int argc, char *argv[]){
     
     //Now we calculate mean and std dev of every vector
 
-    vector<double> mean;
+    /*vector<double> mean;
     vector<double> std;
 
     for(int i=0;i<l;i++){
@@ -238,14 +240,73 @@ int main (int argc, char *argv[]){
       std.push_back(t_std/(2*sqrt(t_av)));
 
       temp1.clear();
-     }
+     }*/
 
-     //Now print the data in an output file
+    //We want to calculate mean and error of every step using the blocking method
+
+    vector<double> step_value(l,0);
+    vector<double> step_error(l,0);
+
+    int N=100; //number of block
+    int B=M/N; //walkers per block
+    vector<double> ave(N,0);
+    vector<double> av2(N,0);
+    vector<double> sum_prog(N,0);
+    vector<double> su2_prog(N,0);
+    vector<double> err_prog(N,0);
+
+for(int i_step=0;i_step<l;i_step++){
+    //Vectors to contain average per block ans cumulative
+   
+
+    for(int i=0;i<N;i++){
+      double sum=0;
+      for(int j=0;j<B;j++){
+        int k=j+i*B;
+        sum += rn2[k][i_step];
+        ave[i]= sum/B;
+        av2[i]= pow(ave[i],2);
+      }
+    }
+
+  //Calculate the cumulative mean and the error
+    for(int i=0;i<N;i++){
+      for(int j=0;j<i+1;j++){
+        sum_prog[i] +=ave[j];
+        su2_prog[i] += av2[j];
+      }
+
+      sum_prog[i] /= (i+1);
+      su2_prog[i] /= (i+1);
+      err_prog[i] = error(sum_prog,su2_prog,i);
+    }
+
+    //Save data per step
+
+    step_value[i_step]=sqrt(sum_prog[N-1]);
+    step_error[i_step]=err_prog[N-1];
+
+
+
+    //Clear useful vector to re-use them
+    ave.clear();
+    av2.clear();
+    sum_prog.clear();
+    su2_prog.clear();
+    err_prog.clear();
+
+    ave= vector<double>(N,0);
+    av2= vector<double>(N,0);
+    sum_prog=vector<double>(N,0);
+    su2_prog=vector<double>(N,0);
+    err_prog=vector<double>(N,0);
+}
+    //Now print the data in an output file
 
     data1.open("Lattice_walk.txt");
 
     for(int j=0;j<l;j++){
-      data1<<mean[j]<<","<<std[j]<<endl;
+      data1<<step_value[j]<<","<<step_error[j]<<endl;
     }
 
     data1.close();
@@ -292,7 +353,7 @@ int main (int argc, char *argv[]){
       u.Set_Position(o);
     }
 
-    vector<double> mean2;
+    /*vector<double> mean2;
     vector<double> std2;
 
     for(int i=0;i<l;i++){
@@ -309,14 +370,74 @@ int main (int argc, char *argv[]){
       std2.push_back(t_std/(2*sqrt(t_av)));
 
       temp3.clear();
-     }
+     }*/
 
-     //Now print the data in an output file
+
+    //Reproduce the same method to calculate mean values and errors
+    N=100; //number of block
+    B=M/N; //walkers per block
+
+    //Re-use the value/error per step vectors
+    step_value.clear();
+    step_error.clear();
+
+    step_value=vector<double>(l,0);
+    step_error=vector<double>(l,0);
+
+    for(int i_step=0;i_step<l;i_step++){
+    //Vectors to contain average per block ans cumulative
+   
+
+    for(int i=0;i<N;i++){
+      double sum=0;
+      for(int j=0;j<B;j++){
+        int k=j+i*B;
+        sum += rnu2[k][i_step];
+        ave[i]= sum/B;
+        av2[i]= pow(ave[i],2);
+      }
+    }
+
+  //Calculate the cumulative mean and the error
+    for(int i=0;i<N;i++){
+      for(int j=0;j<i+1;j++){
+        sum_prog[i] +=ave[j];
+        su2_prog[i] += av2[j];
+      }
+
+      sum_prog[i] /= (i+1);
+      su2_prog[i] /= (i+1);
+      err_prog[i] = error(sum_prog,su2_prog,i);
+    }
+
+    //Save data per step
+
+    step_value[i_step]=sqrt(sum_prog[N-1]);
+    step_error[i_step]=err_prog[N-1];
+
+
+
+    //Clear useful vector to re-use them
+    ave.clear();
+    av2.clear();
+    sum_prog.clear();
+    su2_prog.clear();
+    err_prog.clear();
+
+    ave= vector<double>(N,0);
+    av2= vector<double>(N,0);
+    sum_prog=vector<double>(N,0);
+    su2_prog=vector<double>(N,0);
+    err_prog=vector<double>(N,0);
+}
+
+
+    //Now print the data in an output file
 
     data1.open("Uniform_walk.txt");
 
     for(int j=0;j<l;j++){
-      data1<<mean2[j]<<","<<std2[j]<<endl;
+      data1<<step_value[j]<<","<<step_error[j]<<endl;
     }
 
     data1.close();

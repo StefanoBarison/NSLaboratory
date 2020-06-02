@@ -32,16 +32,12 @@ class Needle{
       _theta=theta; //Angle wrt the x-axis
     }
 
-    double Check(int n){ //This function returns 1 if the Needle crosses a line, 0 otherwise
+    double Check(){ //This function returns 1 if the Needle crosses a line, 0 otherwise
       int count=0;
-      //double d=1./n;
-      //for(int i=1;i<n;i++){
-        //if((_x1<= i*d && _x2>=i*d) || (_x1>= i*d && _x2<=i/n)){count ++;}
-        //if(abs(_x1-i*d)<=abs(_l*_cos/2)){count++; break;}
-        if(_x<=abs(_l*cos(_theta)/2)){
+      if(_x<=abs(_l*cos(_theta)/2)){
           count++;
         }
-      //}
+      
       double dcount=count*1.;
       return dcount;
     }
@@ -97,12 +93,18 @@ for(int i=0;i<M;i++){
 }
 
 for(int i=0;i<M;i++){
-  //7double a=rnd.Rannyu();
-  //double b=rnd.Rannyu();
-  //if(pow(a,2)+pow(b,2)<1){
-    theta.push_back(rnd.Rannyu(0,M_PI/2));
-    //theta.push_back(acos(a/sqrt(pow(a,2)+pow(b,2))));
-  //}
+  double a=rnd.Rannyu();
+  double b=rnd.Rannyu();
+
+  while(pow(a,2)+pow(b,2)>=1){
+
+    a=rnd.Rannyu();
+    b=rnd.Rannyu();
+  }
+
+    //theta.push_back(rnd.Rannyu(0,M_PI/2));
+    theta.push_back(acos( a / (sqrt(pow(a,2)+pow(b,2)))  ) );
+
 }
 
 //Now we create a vector of needles
@@ -114,7 +116,7 @@ for(int i=0;i<M;i++){
 vector<double> check;
 
 for (int i=0; i<M; i++) {
-  check.push_back(t[i].Check(n));
+  check.push_back(t[i].Check());
 }
 
 //Now that we have a vector of checks, we can estimate pi for every block

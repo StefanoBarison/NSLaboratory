@@ -1,10 +1,8 @@
 ___PRIMA LEZIONE____
--Sistemare generazione angolo uniforme in Buffon senza usare pi greco
--Integrare spiegazioni nel notebook
+-Integrare spiegazioni nel notebook, solo nella parte iniziale
 
 ___SECONDA LEZIONE___
--Fare il metodo a blocchi sui random walks
--Finire il notebook aggiungendo spiegazioni
+- Sostanzialmente finita
 
 ___TERZA LEZIONE___
 -Sistemare il notebook
