@@ -5,18 +5,16 @@ ___SECONDA LEZIONE___
 - Sostanzialmente finita
 
 ___TERZA LEZIONE___
--Sistemare il notebook
+-Sostanzialmente finita
 
 ___QUARTA LEZIONE___
-- Sostanzialmente completa, controllare che l'equilibrazione del gas di argon sia corretta
-- Controllare il senso fisico delle temperature ottenute 
+- Sostanzialmente finita 
  
-
 ___QUINTA LEZIONE___
 - Sostanzialmente finita
 
 ___SESTA LEZIONE___
-- Sostanzialmente finita, cambiare la prima parte dell'equilibrazione mettendo i valori istantanei
+- Sostanzialmente finita
 
 ___SETTIMA LEZIONE___
 - Sostanzialmente finita, aggiungere magari una spiegazione della differenza tra ensemble canonico e microcanonico
@@ -30,6 +28,11 @@ ___NONA LEZIONE___
 ___DECIMA LEZIONE___
 - Sostanzialmente finita
 
+___UNDICESIMA LEZIONE___
+- Sostanzialmente finita
+
+__DODICESIMA LEZIONE___
+- Da iniziare
 
 
 
