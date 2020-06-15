@@ -1,20 +1,20 @@
 ___PRIMA LEZIONE____
--Integrare spiegazioni nel notebook, solo nella parte iniziale
+- Finita
 
 ___SECONDA LEZIONE___
-- Sostanzialmente finita
+- Finita
 
 ___TERZA LEZIONE___
--Sostanzialmente finita
+- Finita
 
 ___QUARTA LEZIONE___
-- Sostanzialmente finita 
+- Finita
  
 ___QUINTA LEZIONE___
-- Sostanzialmente finita
+- Finita
 
 ___SESTA LEZIONE___
-- Sostanzialmente finita
+- Finita
 
 ___SETTIMA LEZIONE___
 - Sostanzialmente finita, aggiungere magari una spiegazione della differenza tra ensemble canonico e microcanonico
